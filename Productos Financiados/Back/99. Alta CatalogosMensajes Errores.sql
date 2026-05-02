@@ -2,8 +2,12 @@ Use SisArrendaCredito
 Go
 
 --
--- Script: alta Mensajes Errores
+-- Script:      alta Mensajes Errores
+-- Fecha:       30-Abr-2026
+-- Versión:     1
+-- Programador: Pedro Zambrano
 --
+
 
 Declare
    @w_idFormulario    Integer,
@@ -55,11 +59,11 @@ Begin
    If Exists ( Select top 1 1
                From   dbo.catMensajesErroresTbl
                Where  idFormulario = @w_idFormulario
-               And    idError      Between @w_idError And 9063)
+               And    idError      Between @w_idError And 9069)
       Begin
          Delete dbo.catMensajesErroresTbl
          Where  idFormulario = @w_idFormulario
-         And    idError      Between @w_idError And 9063;
+         And    idError      Between @w_idError And 9069;
      End;
 
    Insert Into dbo.catMensajesErroresTbl
@@ -73,6 +77,25 @@ Begin
    Union
    Select @w_idFormulario, @w_idError + 2, 'La Fecha de Autorizacion no es Valida', @w_usuario,
           @w_fecha,        @w_ipAct
+   Union
+   Select @w_idFormulario, @w_idError + 3, 'El Identificador de la Relacion Unidad Producto a financiar no Existe', @w_usuario,
+          @w_fecha,        @w_ipAct
+   Union
+   Select @w_idFormulario, @w_idError + 4, 'El Identificador de la Relacion Unidad Producto a financiar ya fue procesado', @w_usuario,
+          @w_fecha,        @w_ipAct
+   Union
+   Select @w_idFormulario, @w_idError + 5, 'No Existen Registros para los Parámetros Seleccionados', @w_usuario,
+          @w_fecha,        @w_ipAct
+   Union
+   Select @w_idFormulario, @w_idError + 6, 'El Número de cuotas de los productos financiados es mayor a la de la Unidad.', @w_usuario,
+          @w_fecha,        @w_ipAct
+   Union
+   Select @w_idFormulario, @w_idError + 7, 'El Identificador de la Relacion Unidad Producto a financiar Esta Borrado Logicamente.', @w_usuario,
+          @w_fecha,        @w_ipAct
+   Union
+   Select @w_idFormulario, @w_idError + 8, 'Ya existe una Relación Producto - Unidad Activa.', @w_usuario,
+          @w_fecha,        @w_ipAct;
+
   Return
 
 End

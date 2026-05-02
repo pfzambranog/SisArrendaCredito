@@ -2,7 +2,10 @@ Use SisArrendaCredito
 Go
 
 --
--- Script: alta Estatus
+-- Script:      Alta Estatus
+-- Tabla:       SO_RelUnidadProductoFinTbl
+-- Fecha:       30-Abr-2026
+-- Programador: Pedro Zambrano
 --
 
 Declare

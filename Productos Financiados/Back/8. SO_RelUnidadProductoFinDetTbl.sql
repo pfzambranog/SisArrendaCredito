@@ -2,44 +2,51 @@ Use SisArrendaCredito
 Go
 
 --
--- Tabla:   SO_RelUnidadProductoFinTbl
---          Tabla de Control de la Relación de la Unidad con los productos a financiar
--- Modulo:  Originación
--- Fecha:   30-Abr-2026
--- Version: 1
+-- Tabla:       SO_RelUnidadProductoFinDetTbl
+--              Tabla Relación de productos a financiar relacionados a una Unidad
+-- Modulo:      Originación
+-- Fecha:       01-May-2026
+-- Versión:     1
+-- Programador: Pedro Zambrano
 --
 
 If Exists (Select Top 1 1
            From   SysObjects
            Where  Uid = 1
            And    Type = 'U'
-           And    Name = 'SO_RelUnidadProductoFinTbl')
+           And    Name = 'SO_RelUnidadProductoFinDetTbl')
    Begin
-      Drop Table dbo.SO_RelUnidadProductoFinTbl
+      Drop Table dbo.SO_RelUnidadProductoFinDetTbl
    End
 Go
 
-Create Table dbo.SO_RelUnidadProductoFinTbl
-  (idRelacion            Integer        Not Null Identity (1, 1),
-   Id_Unidad             Integer        Not Null,
-   totalFinaciamiento    Decimal(18, 2) Not Null,
-   noamort               Integer        Not Null,
-   tasaFinaciamiento     Decimal(18, 4) Not Null,
+Create Table dbo.SO_RelUnidadProductoFinDetTbl
+  (idRelacion            Integer        Not Null,
+   prod_id               Integer        Not Null,
+   secuencia             Integer        Not Null,
+   precioLista           Decimal(18, 2) Not Null,
+   descuento             Decimal(18, 2) Not Null Default 0,
+   precioneto            Decimal(18, 2) Not Null,
+   tasaIva               Decimal(18, 4) Not Null Default 0,
+   montoIva              Decimal(18, 2) Not Null,
+   precioTotal           Decimal(18, 2) Not Null,
    idEstatus             Integer        Not Null Default 1,
    borradoLogico         Bit            Not Null Default 0,
    fechaAlta             Datetime       Not Null Default Getdate(),
-   usuarioAutoriza       Varchar(10)        Null,
-   fechaAutoriza         Datetime           Null,
    ultActual             Datetime       Not Null Default Getdate(),
    usuario               Varchar(10)    Not Null,
    ipAct                 Varchar(30)        Null,
-   Constraint SO_RelUnidadProductoFinPk
-   Primary Key (idRelacion),
-   Constraint SO_RelUnidadProductoFinFk01
-   Foreign Key (Id_Unidad)
-   References dbo.SO_Unidades(id_Unidad),
-   Constraint SO_RelUnidadProductoFinCk01
-   Check(idEstatus Between 1 And 5))
+   Constraint SO_RelUnidadProductoFinDetPk
+   Primary Key (idRelacion, prod_id, secuencia),
+   Constraint SO_RelUnidadProductoFinDetFk01
+   Foreign Key (idRelacion)
+   References dbo.SO_RelUnidadProductoFinTbl(idRelacion) on Delete Cascade,
+   Constraint SO_RelUnidadProductoFinDetFk02
+   Foreign Key (prod_id)
+   References dbo.producto(prod_id) on Delete Cascade,
+   Constraint SO_RelUnidadProductoFinDetCk01
+   Check(idEstatus Between 0 And 1))
+   On [Primary]
 Go
 
 --
@@ -47,11 +54,11 @@ Go
 --
 
 Execute sp_addextendedproperty    @name       = 'MS_Description',
-                                  @value      = 'Tabla de Control de la Relación de la Unidad con los productos a financiar.',
+                                  @value      = 'Tabla Relación de productos a financiar relacionados a una Unidad.',
                                   @level0type = 'Schema',
                                   @level0name = 'dbo',
                                   @level1type = 'Table',
-                                  @level1name = 'SO_RelUnidadProductoFinTbl'
+                                  @level1name = 'SO_RelUnidadProductoFinDetTbl'
 Go
 
 Execute sp_addextendedproperty    @name       = 'MS_Description',
@@ -59,99 +66,120 @@ Execute sp_addextendedproperty    @name       = 'MS_Description',
                                   @level0type = 'Schema',
                                   @level0name = 'dbo',
                                   @level1type = 'Table',
-                                  @level1name = 'SO_RelUnidadProductoFinTbl',
+                                  @level1name = 'SO_RelUnidadProductoFinDetTbl',
                                   @level2type = 'Column',
                                   @level2name = 'idRelacion'
 Go
 
 Execute sp_addextendedproperty    @name       = 'MS_Description',
-                                  @value      = 'Identificador de la Unidad a la cual se le va a relaciones los productos a financiar.',
+                                  @value      = 'Identificador del producto a financiar.',
                                   @level0type = 'Schema',
                                   @level0name = 'dbo',
                                   @level1type = 'Table',
-                                  @level1name = 'SO_RelUnidadProductoFinTbl',
+                                  @level1name = 'SO_RelUnidadProductoFinDetTbl',
                                   @level2type = 'Column',
-                                  @level2name = 'Id_Unidad'
+                                  @level2name = 'prod_id'
 Go
 
 Execute sp_addextendedproperty    @name       = 'MS_Description',
-                                  @value      = 'Importe total de los productos a financiar.',
+                                  @value      = 'Secuencia de la Relación del producto a financiar.',
                                   @level0type = 'Schema',
                                   @level0name = 'dbo',
                                   @level1type = 'Table',
-                                  @level1name = 'SO_RelUnidadProductoFinTbl',
+                                  @level1name = 'SO_RelUnidadProductoFinDetTbl',
                                   @level2type = 'Column',
-                                  @level2name = 'totalFinaciamiento'
+                                  @level2name = 'secuencia'
+Go
+
+
+Execute sp_addextendedproperty    @name       = 'MS_Description',
+                                  @value      = 'Precio de Lista del Producto a financiar.',
+                                  @level0type = 'Schema',
+                                  @level0name = 'dbo',
+                                  @level1type = 'Table',
+                                  @level1name = 'SO_RelUnidadProductoFinDetTbl',
+                                  @level2type = 'Column',
+                                  @level2name = 'precioLista'
 Go
 
 Execute sp_addextendedproperty    @name       = 'MS_Description',
-                                  @value      = 'Numero de Amortizaciones de los productos a financiar.',
+                                  @value      = 'Decuento aplicado al producto a financiar.',
                                   @level0type = 'Schema',
                                   @level0name = 'dbo',
                                   @level1type = 'Table',
-                                  @level1name = 'SO_RelUnidadProductoFinTbl',
+                                  @level1name = 'SO_RelUnidadProductoFinDetTbl',
                                   @level2type = 'Column',
-                                  @level2name = 'noamort'
+                                  @level2name = 'descuento'
 Go
 
 Execute sp_addextendedproperty    @name       = 'MS_Description',
-                                  @value      = 'Tasa del Finaciamiento a ser Aplicados al Financiamiento.',
+                                  @value      = 'Precio Neto aplicado al producto a financiar.',
                                   @level0type = 'Schema',
                                   @level0name = 'dbo',
                                   @level1type = 'Table',
-                                  @level1name = 'SO_RelUnidadProductoFinTbl',
+                                  @level1name = 'SO_RelUnidadProductoFinDetTbl',
                                   @level2type = 'Column',
-                                  @level2name = 'tasaFinaciamiento'
+                                  @level2name = 'precioneto'
 Go
 
 Execute sp_addextendedproperty    @name       = 'MS_Description',
-                                  @value      = 'Identificador del Estatus de la Relación de la Unidad con los productos a financiar',
+                                  @value      = 'Porcentaje de Iva aplicado al producto a financiar.',
                                   @level0type = 'Schema',
                                   @level0name = 'dbo',
                                   @level1type = 'Table',
-                                  @level1name = 'SO_RelUnidadProductoFinTbl',
+                                  @level1name = 'SO_RelUnidadProductoFinDetTbl',
+                                  @level2type = 'Column',
+                                  @level2name = 'tasaIva'
+Go
+
+Execute sp_addextendedproperty    @name       = 'MS_Description',
+                                  @value      = 'Monto del Iva aplicado al producto a financiar.',
+                                  @level0type = 'Schema',
+                                  @level0name = 'dbo',
+                                  @level1type = 'Table',
+                                  @level1name = 'SO_RelUnidadProductoFinDetTbl',
+                                  @level2type = 'Column',
+                                  @level2name = 'montoIva'
+Go
+
+Execute sp_addextendedproperty    @name       = 'MS_Description',
+                                  @value      = 'Precio Neto mas Iva aplicado al producto a financiar.',
+                                  @level0type = 'Schema',
+                                  @level0name = 'dbo',
+                                  @level1type = 'Table',
+                                  @level1name = 'SO_RelUnidadProductoFinDetTbl',
+                                  @level2type = 'Column',
+                                  @level2name = 'precioTotal'
+Go
+
+Execute sp_addextendedproperty    @name       = 'MS_Description',
+                                  @value      = 'Identificador del Estatus del Producto en laa relación. 0 = Inactivo, 1 = Activo',
+                                  @level0type = 'Schema',
+                                  @level0name = 'dbo',
+                                  @level1type = 'Table',
+                                  @level1name = 'SO_RelUnidadProductoFinDetTbl',
                                   @level2type = 'Column',
                                   @level2name = 'idEstatus'
 Go
 
 Execute sp_addextendedproperty    @name       = 'MS_Description',
-                                  @value      = 'Flag que indica si la Relación de la Unidad con los productos a financiar esta activa',
+                                  @value      = 'Identificador del Registro si esta de baja. 0 = Activo, 1 = Baja',
                                   @level0type = 'Schema',
                                   @level0name = 'dbo',
                                   @level1type = 'Table',
-                                  @level1name = 'SO_RelUnidadProductoFinTbl',
+                                  @level1name = 'SO_RelUnidadProductoFinDetTbl',
                                   @level2type = 'Column',
                                   @level2name = 'borradoLogico'
 Go
 
 Execute sp_addextendedproperty    @name       = 'MS_Description',
-                                  @value      = 'Fecha de Alta de la Relación de la Unidad con los productos a financiar esta activa',
+                                  @value      = 'Fecha de Alta de la Relación del producto con la Unidad',
                                   @level0type = 'Schema',
                                   @level0name = 'dbo',
                                   @level1type = 'Table',
-                                  @level1name = 'SO_RelUnidadProductoFinTbl',
+                                  @level1name = 'SO_RelUnidadProductoFinDetTbl',
                                   @level2type = 'Column',
                                   @level2name = 'fechaAlta'
-Go
-
-Execute sp_addextendedproperty    @name       = 'MS_Description',
-                                  @value      = 'Codigo del Usuario que Autoriza el Financiamiento',
-                                  @level0type = 'Schema',
-                                  @level0name = 'dbo',
-                                  @level1type = 'Table',
-                                  @level1name = 'SO_RelUnidadProductoFinTbl',
-                                  @level2type = 'Column',
-                                  @level2name = 'usuarioAutoriza'
-Go
-
-Execute sp_addextendedproperty    @name       = 'MS_Description',
-                                  @value      = 'Fecha en que se Autoriza el Financiamiento',
-                                  @level0type = 'Schema',
-                                  @level0name = 'dbo',
-                                  @level1type = 'Table',
-                                  @level1name = 'SO_RelUnidadProductoFinTbl',
-                                  @level2type = 'Column',
-                                  @level2name = 'fechaAutoriza'
 Go
 
 Execute sp_addextendedproperty    @name       = 'MS_Description',
@@ -159,7 +187,7 @@ Execute sp_addextendedproperty    @name       = 'MS_Description',
                                   @level0type = 'Schema',
                                   @level0name = 'dbo',
                                   @level1type = 'Table',
-                                  @level1name = 'SO_RelUnidadProductoFinTbl',
+                                  @level1name = 'SO_RelUnidadProductoFinDetTbl',
                                   @level2type = 'Column',
                                   @level2name = 'ultActual'
 Go
@@ -169,7 +197,7 @@ Execute sp_addextendedproperty    @name       = 'MS_Description',
                                   @level0type = 'Schema',
                                   @level0name = 'dbo',
                                   @level1type = 'Table',
-                                  @level1name = 'SO_RelUnidadProductoFinTbl',
+                                  @level1name = 'SO_RelUnidadProductoFinDetTbl',
                                   @level2type = 'Column',
                                   @level2name = 'usuario'
 Go
@@ -179,7 +207,7 @@ Execute sp_addextendedproperty    @name       = 'MS_Description',
                                   @level0type = 'Schema',
                                   @level0name = 'dbo',
                                   @level1type = 'Table',
-                                  @level1name = 'SO_RelUnidadProductoFinTbl',
+                                  @level1name = 'SO_RelUnidadProductoFinDetTbl',
                                   @level2type = 'Column',
                                   @level2name = 'ipAct'
 Go

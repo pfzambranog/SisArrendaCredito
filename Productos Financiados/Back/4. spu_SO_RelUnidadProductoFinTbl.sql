@@ -4,6 +4,7 @@ Go
 /*
 
 Declare
+   @PnIdRelacion            Integer         = 1,
    @PnId_Unidad             Integer         = 106990,
    @PnTotalFinaciamiento    Decimal(18, 2)  = 1200,
    @PnNoamort               Integer         = 12,
@@ -18,7 +19,8 @@ Declare
    @PsMensaje               Varchar( 250)   = Null;
 
 Begin
-   Execute dbo.spa_SO_RelUnidadProductoFinTbl @PnId_Unidad          = @PnId_Unidad,
+   Execute dbo.spu_SO_RelUnidadProductoFinTbl @PnIdRelacion         = @PnIdRelacion,
+                                              @PnId_Unidad          = @PnId_Unidad,
                                               @PnTotalFinaciamiento = @PnTotalFinaciamiento,
                                               @PnNoamort            = @PnNoamort,
                                               @PnTasaFinaciamiento  = @PnTasaFinaciamiento,
@@ -40,20 +42,21 @@ Go
 */
 
 --
--- Procedimiento: spa_SO_RelUnidadProductoFinTbl
--- Objetivo:      Procedimiento de Alta a la Entidad SO_RelUnidadProductoFinTbl
--- Fecha:         30-Abr-2026
+-- Procedimiento: spu_SO_RelUnidadProductoFinTbl
+-- Objetivo:      Procedimiento de Actualización a la Entidad SO_RelUnidadProductoFinTbl
+-- Fecha:         01-May-2026
 -- Version:       1
 --
 -- Programador:   Pedro Zambrano
 --
 
-Create Or ALter Procedure dbo.spa_SO_RelUnidadProductoFinTbl
-  (@PnId_Unidad             Integer,
-   @PnTotalFinaciamiento    Decimal(18, 2),
-   @PnNoamort               Integer,
-   @PnTasaFinaciamiento     Decimal(18, 4),
-   @PnIdEstatus             Integer         = 1,
+Create Or ALter Procedure dbo.spu_SO_RelUnidadProductoFinTbl
+  (@PnIdRelacion            Integer,
+   @PnId_Unidad             Integer         = Null,
+   @PnTotalFinaciamiento    Decimal(18, 2)  = Null,
+   @PnNoamort               Integer         = Null,
+   @PnTasaFinaciamiento     Decimal(18, 4)  = Null,
+   @PnIdEstatus             Integer         = Null,
    @PsUsuarioAutoriza       Varchar( 10)    = Null,
    @PdFechaAutoriza         Datetime        = Null,
    @PdUltActual             Datetime        = Null,
@@ -68,8 +71,10 @@ Declare
    @w_registros             Integer,
    @w_prod_fin              Integer,
    @w_operacion             Integer,
-   @w_desc_error            Varchar(250),
-   @w_fecha                 Datetime;
+   @w_desc_error            Varchar( 250),
+   @w_sql                   Varchar(2000),
+   @w_fecha                 Datetime,
+   @w_comilla               Char(1);
 
 Begin
    Set Nocount       On
@@ -81,8 +86,8 @@ Begin
           @w_fecha         = Isnull(@PdUltActual, Getdate()),
           @w_registros     = 0,
           @w_operacion     = 9999,
+          @w_comilla       = Char(39),
           @PsIpAct         = Isnull(@PsIpAct, dbo.Fn_BuscaDireccionIP());
-
 
   If @PnEstatus != 0
      Begin
@@ -93,8 +98,8 @@ Begin
            End;
      End;
 
-   If @PsUsuarioAutoriza Is Not NUll Or
-      @PnIdEstatus        = 2
+   If @PsUsuarioAutoriza Is Not Null Or
+      @PnIdEstatus       = 2
       Begin
          Set @PnEstatus       = dbo.Fn_BuscaIdUsuario(@PsUsuarioAutoriza);
 
@@ -124,57 +129,117 @@ Begin
 
       End;
 
-   If Not Exists (Select Top 1 1 
-                  From   dbo.catGeneralesTbl With (Nolock)
-                  Where  tabla   = 'SO_RelUnidadProductoFinTbl'
-                  And    columna = 'idEstatus'
-                  And    Valor   = @PnIdEstatus)
+   Select Top 1 @PnEstatus = idEstatus
+   From   dbo.SO_RelUnidadProductoFinTbl With (Nolock)
+   Where  idRelacion = @PnIdRelacion;
+   If @@Rowcount = 0
       Begin
-         Select @PnEstatus = 8033,
+         Select @PnEstatus = 9064,
                 @PsMensaje = dbo.Fn_Busca_MensajeError(@w_operacion, @PnEstatus);
 
-               Goto Salida
+         Goto Salida
+      End;
+
+  If @PnEstatus = 3
+      Begin
+         Select @PnEstatus = 9065,
+                @PsMensaje = dbo.Fn_Busca_MensajeError(@w_operacion, @PnEstatus);
+
+         Goto Salida
+      End;
+
+--
+-- Validación del Parámetros estatus
+--
+
+   If @PnIdEstatus Is Not Null
+      Begin
+         If Not Exists (Select Top 1 1
+                        From   dbo.catGeneralesTbl  With (Nolock)
+                        Where  tabla   = 'SO_RelUnidadProductoFinTbl'
+                        And    columna = 'idEstatus'
+                        And    Valor   = @PnIdEstatus)
+            Begin
+               Select @PnEstatus = 8033,
+                      @PsMensaje = dbo.Fn_Busca_MensajeError(@w_operacion, @PnEstatus);
+
+                     Goto Salida
             End;
+      End;
 
    Set @PnEstatus = 0
-   
+
 --
 -- Validación de la Unidad y el producto Financiero.
 --
 
-   Select Top 1 @w_prod_fin = c.prod_fin_id
-   From   dbo.SO_SolCotizacion a With (Nolock)
-   Join   dbo.SO_Unidades b      With (Nolock)
-   On     b.idSolicitud = a.idSolicitud
-   Join   dbo.so_tipos c         With (Nolock)
-   On     c.IdTipo      = a.IdTipo
-   Where   b.Id_Unidad  = @PnId_Unidad;
-   If @@Rowcount =  0
+   If @PnId_Unidad Is Not Null
       Begin
-         Select @PnEstatus = 6014,
-                @PsMensaje = 'Error.: ' + (dbo.Fn_Busca_MensajeError(@w_operacion, @PnEstatus))
+         Select Top 1 @w_prod_fin = c.prod_fin_id
+         From   dbo.SO_SolCotizacion a With (Nolock)
+         Join   dbo.SO_Unidades b      With (Nolock)
+         On     b.idSolicitud = a.idSolicitud
+         Join   dbo.so_tipos c         With (Nolock)
+         On     c.IdTipo      = a.IdTipo
+         Where   b.Id_Unidad  = @PnId_Unidad;
+         If @@Rowcount =  0
+            Begin
+               Select @PnEstatus = 6014,
+                      @PsMensaje = 'Error.: ' + (dbo.Fn_Busca_MensajeError(@w_operacion, @PnEstatus))
 
-         Goto Salida;
+               Goto Salida;
+            End
+
+         If @w_prod_fin != 1
+            Begin
+               Select @PnEstatus = 10014,
+                      @PsMensaje = 'Error.: ' + (dbo.Fn_Busca_MensajeError(@w_operacion, @PnEstatus))
+
+               Goto Salida;
+            End
+
       End
 
-   If @w_prod_fin != 1
-      Begin
-         Select @PnEstatus = 10014,
-                @PsMensaje = dbo.Fn_Busca_MensajeError(@w_operacion, @PnEstatus);
+   Set @w_sql = Concat('Update dbo.SO_RelUnidadProductoFinTbl ',
+                       'Set    ultActual  = ', @w_comilla, Cast(@w_fecha As Varchar), @w_comilla, ', ',
+                              'usuario    = ', @w_comilla, @PsUsuario,                @w_comilla, ', ',
+                              'ipAct      = ', @w_comilla, @PsIpAct,                  @w_comilla);
 
-         Goto Salida;
+   If @PnId_Unidad Is Not Null
+      Begin
+         Set @w_sql = Concat(@w_sql, ', Id_unidad = ', @PnId_Unidad);
       End
+
+   If @PnTotalFinaciamiento Is Not Null
+      Begin
+         Set @w_sql = Concat(@w_sql, ', totalFinaciamiento = ', @PnTotalFinaciamiento);
+      End
+
+   If @PnNoamort Is Not Null
+      Begin
+         Set @w_sql = Concat(@w_sql, ', noamort = ', @PnNoamort);
+      End
+
+   If @PnTasaFinaciamiento Is Not Null
+      Begin
+         Set @w_sql = Concat(@w_sql, ', tasaFinaciamiento = ', @PnTasaFinaciamiento);
+      End
+
+   If @PnIdEstatus Is Not Null
+      Begin
+         Set @w_sql = Concat(@w_sql, ', idEstatus = ', @PnIdEstatus);
+      End
+
+   If @PsUsuarioAutoriza Is Not Null
+      Begin
+         Set @w_sql = Concat(@w_sql, ', usuarioAutoriza  = ', @w_comilla, @PsUsuarioAutoriza,                @w_comilla,
+                                     ', fechaAutoriza    = ', @w_comilla, Cast(@PdFechaAutoriza As Varchar), @w_comilla);
+      End
+
+   Set @w_sql = Concat(@w_sql, ' Where idRelacion = ', @PnIdRelacion);
 
    Begin Try
-      Insert Into dbo.SO_RelUnidadProductoFinTbl
-     (Id_Unidad, totalFinaciamiento, noamort,       tasaFinaciamiento,
-      idEstatus, usuarioAutoriza,    fechaAutoriza, usuario,
-      UltActual, ipAct)
-      Select @PnId_Unidad, @PnTotalFinaciamiento, @PnNoamort,       @PnTasaFinaciamiento,
-             @PnIdEstatus, @PsUsuarioAutoriza,    @PdFechaAutoriza, @PsUsuario,
-             @w_fecha,     @PsIpAct;
-      Set @PsMensaje = @@Identity;
-
+      Execute (@w_sql)
    End   Try
 
    Begin Catch
@@ -197,8 +262,8 @@ End
 Go
 
 Declare
-   @w_valor          Nvarchar(250) = 'Procedimiento de Alta a la Entidad SO_RelUnidadProductoFinTbl',
-   @w_procedimiento  NVarchar(250) = 'spa_SO_RelUnidadProductoFinTbl';
+   @w_valor          Nvarchar(250) = 'Procedimiento de Actualización a la Entidad SO_RelUnidadProductoFinTbl',
+   @w_procedimiento  NVarchar(250) = 'spu_SO_RelUnidadProductoFinTbl';
 
 If Not Exists (Select Top 1 1
                From   sys.extended_properties a
