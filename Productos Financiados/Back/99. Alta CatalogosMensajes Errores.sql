@@ -59,11 +59,11 @@ Begin
    If Exists ( Select top 1 1
                From   dbo.catMensajesErroresTbl
                Where  idFormulario = @w_idFormulario
-               And    idError      Between @w_idError And 9069)
+               And    idError      Between @w_idError And 9073)
       Begin
          Delete dbo.catMensajesErroresTbl
          Where  idFormulario = @w_idFormulario
-         And    idError      Between @w_idError And 9069;
+         And    idError      Between @w_idError And 9073;
      End;
 
    Insert Into dbo.catMensajesErroresTbl
@@ -94,7 +94,19 @@ Begin
           @w_fecha,        @w_ipAct
    Union
    Select @w_idFormulario, @w_idError + 8, 'Ya existe una Relación Producto - Unidad Activa.', @w_usuario,
-          @w_fecha,        @w_ipAct;
+          @w_fecha,        @w_ipAct
+   Union
+   Select @w_idFormulario, @w_idError + 9, 'El Número de Amotizaciones supera el número de cuotas.', @w_usuario,
+          @w_fecha,        @w_ipAct
+          Union
+   Select @w_idFormulario, @w_idError + 10, 'La suma de las Amotizaciones supera el importe a financiar.', @w_usuario,
+          @w_fecha,        @w_ipAct
+   Union
+   Select @w_idFormulario, @w_idError + 11, 'La Amotizacion a financiar ya Existe.', @w_usuario,
+          @w_fecha,        @w_ipAct
+   Union
+   Select @w_idFormulario, @w_idError + 12, 'La Amotizacion NO es Válida.', @w_usuario,
+          @w_fecha,        @w_ipAct;  
 
   Return
 

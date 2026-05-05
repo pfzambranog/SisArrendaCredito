@@ -36,7 +36,7 @@ Go
 -- Objetivo:      Procedimiento de Baja de Registros a la Entidad SO_RelUnidadProductoFinDetTbl
 --                @PnBajaReal = 0 - Actualiza el campo borradoLogico = 1
 --                @PnBajaReal = 1 - Baja Física del registro
--- Fecha:         01-may-2026
+-- Fecha:         02-may-2026
 -- Version:       1
 --
 -- Programador:   Pedro Zambrano

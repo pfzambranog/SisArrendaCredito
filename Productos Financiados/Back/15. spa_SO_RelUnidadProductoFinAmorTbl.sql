@@ -4,32 +4,30 @@ Go
 /*
 
 Declare
-   @PnIdRelacion            Integer        = 2,
-   @PnProd_id               Integer        = 26,
-   @PnPrecioLista           Decimal(18, 2) = 110000,
-   @PnDescuento             Decimal(18, 2) = 0,
-   @PnPrecioneto            Decimal(18, 2) = 110000,
-   @PnTasaIva               Decimal(18, 4) = 16.5,
-   @PnMontoIva              Decimal(18, 2) = 181.50,
-   @PnPrecioTotal           Decimal(18, 2)  = 11181.50,
+   @PnIdRelacion            Integer         = 2,
+   @PnAmortiz_id            Integer         = 1,
+   @PdFecha                 Date            = '2026-05-04',
+   @PnCapital               Decimal(18, 2)  = 100,
+   @PnIntereses             Decimal(18, 2)  = 0,
+   @PnGastos                Decimal(18, 2)  = 0,
+   @PnSeguros               Decimal(18, 2)  = 100,
    @PsUsuario               Varchar( 10)    = 'ARRENDAN',
    @PsIpAct                 Varchar( 10)    = Null,
    @PnEstatus               Integer         = 0,
    @PsMensaje               Varchar( 250)   = Char(32);
 
 Begin
-   Execute dbo.spa_SO_RelUnidadProductoFinDetTbl @PnIdRelacion  = @PnIdRelacion,
-                                                 @PnProd_id     = @PnProd_id,
-                                                 @PnPrecioLista = @PnPrecioLista,
-                                                 @PnDescuento   = @PnDescuento,
-                                                 @PnPrecioneto  = @PnPrecioneto,
-                                                 @PnTasaIva     = @PnTasaIva,
-                                                 @PnMontoIva    = @PnMontoIva,
-                                                 @PnPrecioTotal = @PnPrecioTotal,
-                                                 @PsUsuario     = @PsUsuario,
-                                                 @PsIpAct       = @PsIpAct,
-                                                 @PnEstatus     = @PnEstatus Output,
-                                                 @PsMensaje     = @PsMensaje Output;
+   Execute dbo.spa_SO_RelUnidadProductoFinAmorTbl @PnIdRelacion  = @PnIdRelacion,
+                                                  @PnAmortiz_id  = @PnAmortiz_id,
+                                                  @PdFecha       = @PdFecha,
+                                                  @PnCapital     = @PnCapital,
+                                                  @PnIntereses   = @PnIntereses,
+                                                  @PnGastos      = @PnGastos,
+                                                  @PnSeguros     = @PnSeguros,
+                                                  @PsUsuario     = @PsUsuario,
+                                                  @PsIpAct       = @PsIpAct,
+                                                  @PnEstatus     = @PnEstatus Output,
+                                                  @PsMensaje     = @PsMensaje Output;
 
    Select @PnEstatus error, @PsMensaje Mensaje;
    Return;
@@ -40,25 +38,24 @@ Go
 */
 
 --
--- Procedimiento: spa_SO_RelUnidadProductoFinDetTbl
+-- Procedimiento: spa_SO_RelUnidadProductoFinAmorTbl
 -- Objetivo:      Procedimiento de Alta a la Entidad SO_RelUnidadProductoFinTbl
--- Fecha:         01-may-2026
+-- Fecha:         04-may-2026
 -- Version:       1
 --
 -- Programador:   Pedro Zambrano
 --
 
-Create Or ALter Procedure dbo.spa_SO_RelUnidadProductoFinDetTbl
+Create Or ALter Procedure dbo.spa_SO_RelUnidadProductoFinAmorTbl
   (@PnIdRelacion            Integer,
-   @PnProd_id               Integer,
-   @PnPrecioLista           Decimal(18, 2),
-   @PnDescuento             Decimal(18, 2) = 0,
-   @PnPrecioneto            Decimal(18, 2),
-   @PnTasaIva               Decimal(18, 4) = 0,
-   @PnMontoIva              Decimal(18, 2),
-   @PnPrecioTotal           Decimal(18, 2),
+   @PnAmortiz_id            Integer,
+   @PdFecha                 Date,
+   @PnCapital               Decimal(18, 2),
+   @PnIntereses             Decimal(18, 2),
+   @PnGastos                Decimal(18, 2)  = 0,
+   @PnSeguros               Decimal(18, 2)  = 0,
    @PsUsuario               Varchar( 10),
-   @PsIpAct                 Varchar( 10)    = Null,
+   @PsIpAct                 Varchar( 30)    = Null,
    @PnEstatus               Integer         = 0    Output,
    @PsMensaje               Varchar( 250)   = Null Output)
 As
@@ -71,6 +68,9 @@ Declare
    @w_secuencia             Integer,
    @w_borradoLogico         Integer,
    @w_idEstatus             Integer,
+   @w_noamort               Integer,
+   @w_total                 Decimal(18, 2),
+   @w_monto                 Decimal(18, 2),
    @w_desc_error            Varchar(250),
    @w_fecha                 Datetime;
 
@@ -98,7 +98,9 @@ Begin
    Set @PnEstatus = 0
 
    Select @w_idEstatus       = idEstatus,
-          @w_borradoLogico   = @w_borradoLogico
+          @w_borradoLogico   = @w_borradoLogico,
+          @w_noamort         = noamort,
+          @w_total           = totalFinaciamiento
    From   dbo.SO_RelUnidadProductoFinTbl With (Nolock)
    Where  idRelacion = @PnIdRelacion
    If @@Rowcount = 0
@@ -128,11 +130,25 @@ Begin
 
       End
 
-   If Not Exists ( Select Top 1 1
-                   From   dbo.producto
-                   Where  prod_id = @PnProd_id)
-     Begin
-        Select @PnEstatus = 8046,
+--
+
+   Select @w_registros = Count(1),
+          @w_monto     = Sum(capital)
+   From   dbo.SO_RelUnidadProductoFinAmorTbl a With (Nolock)
+   Where  idRelacion    = @PnIdRelacion;
+
+   If (@w_registros + 1) > @w_noamort
+      Begin
+         Select @PnEstatus = 9070,
+                @PsMensaje = dbo.Fn_Busca_MensajeError(@w_operacion, @PnEstatus)
+
+         Goto Salida;
+
+      End
+
+   If (@w_monto + @PnCapital) > @w_total
+      Begin
+         Select @PnEstatus = 9071,
                 @PsMensaje = dbo.Fn_Busca_MensajeError(@w_operacion, @PnEstatus)
 
          Goto Salida;
@@ -140,41 +156,39 @@ Begin
       End
 
    Select Top 1 @w_idEstatus = idEstatus
-   From   dbo.SO_RelUnidadProductoFinDetTbl a With (Nolock)
+   From   dbo.SO_RelUnidadProductoFinAmorTbl a With (Nolock)
    Where  idRelacion    = @PnIdRelacion
-   And    prod_id       = @PnProd_id
-   And    idEstatus     = 1
-   And    BorradoLogico = 0;
-   If @@Rowcount = 0
+   And    Amortiz_id    = @PnAmortiz_id;
+   If @@Rowcount > 0
       Begin
-         Set @w_idEstatus = 0;
-      End
-
-   If @w_idEstatus = 1
-      Begin
-         Select @PnEstatus = 9069,
+         Select @PnEstatus = 9072,
                 @PsMensaje = dbo.Fn_Busca_MensajeError(@w_operacion, @PnEstatus)
 
          Goto Salida;
 
       End
 
-   Select @w_secuencia = Max(secuencia)
-   From   dbo.SO_RelUnidadProductoFinDetTbl a With (Nolock)
-   Where  idRelacion = @PnIdRelacion
-   And    prod_id    = @PnProd_id;
-   Set @w_secuencia = Isnull(@w_secuencia, 0) + 1
+
+   If Exists ( Select Top 1 1 
+               From   dbo.SO_RelUnidadProductoFinAmorTbl
+               Where  idRelacion    = @PnIdRelacion 
+               And    @PdFecha     <= fechaAmort)
+      Begin
+         Select @PnEstatus = 9999,
+                @PsMensaje = 'La fecha Seleccionada se Traslapa con una ya registrada';
+
+         Goto Salida;
+
+      End
 
    Begin Try
-      Insert Into dbo.SO_RelUnidadProductoFinDetTbl
-     (idRelacion,  prod_id,    secuencia, precioLista,
-      descuento,   precioneto, tasaIva,   montoIva,
-      precioTotal, usuario,    ipAct)
-      Select @PnIdRelacion,  @PnProd_id,    @w_secuencia, @PnPrecioLista,
-             @PnDescuento,   @PnPrecioneto, @PnTasaIva,   @PnMontoIva,
-             @PnPrecioTotal, @PsUsuario,    @PsIpAct;
-      Set @PsMensaje = @@Identity;
-
+      Insert Into dbo.SO_RelUnidadProductoFinAmorTbl
+     (idRelacion, amortiz_id, fechaAmort, capital,
+      intereses,  gastos,     seguros,    usuario,
+      ipAct)
+      Select @PnIdRelacion, @PnAmortiz_id, @PdFecha,    @PnCapital,
+             @PnIntereses,  @PnGastos,     @PnSeguros,  @PsUsuario,
+             @PsIpAct;
    End   Try
 
    Begin Catch
@@ -197,8 +211,8 @@ End
 Go
 
 Declare
-   @w_valor          Nvarchar(250) = 'Procedimiento de Alta a la Entidad SO_RelUnidadProductoFinDetTbl',
-   @w_procedimiento  NVarchar(250) = 'spa_SO_RelUnidadProductoFinDetTbl';
+   @w_valor          Nvarchar(250) = 'Procedimiento de Alta a la Entidad SO_RelUnidadProductoFinAmorTbl',
+   @w_procedimiento  NVarchar(250) = 'spa_SO_RelUnidadProductoFinAmorTbl';
 
 If Not Exists (Select Top 1 1
                From   sys.extended_properties a
