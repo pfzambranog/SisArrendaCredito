@@ -28,7 +28,7 @@ Go
 --
 -- Procedimiento: spd_SO_RelUnidadProductoFinAmorTbl
 -- Objetivo:      Procedimiento de Baja de Registros a la Entidad SO_RelUnidadProductoFinAmorTbl
--- Fecha:         02-may-2026
+-- Fecha:         04-may-2026
 -- Version:       1
 --
 -- Programador:   Pedro Zambrano

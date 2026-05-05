@@ -5,7 +5,7 @@ Go
 -- Tabla:       SO_RelUnidadProductoFinAmorTbl
 --              Tabla de Amortización de Productos Financiados
 -- Modulo:      Originación
--- Fecha:       4-May-2026
+-- Fecha:       04-May-2026
 -- Versión:     1
 -- Programador: Pedro Zambrano
 --

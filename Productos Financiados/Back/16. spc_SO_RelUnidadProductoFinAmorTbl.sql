@@ -32,7 +32,7 @@ Go
 --
 -- Procedimiento: Spc_SO_RelUnidadProductoFinAmorTbl
 -- Objetivo:      Procedimiento de Consulta a la Entidad SO_RelUnidadProductoFinAmorTbl
--- Fecha:         01-may-2026
+-- Fecha:         04-may-2026
 -- Version:       1
 --
 -- Programador:   Pedro Zambrano
