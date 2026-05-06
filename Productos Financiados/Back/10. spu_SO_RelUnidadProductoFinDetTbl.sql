@@ -45,7 +45,7 @@ Go
 
 --
 -- Procedimiento: spu_SO_RelUnidadProductoFinDetTbl
--- Objetivo:      Procedimiento de Actualización a la Entidad spu_SO_RelUnidadProductoFinDetTbl
+-- Objetivo:      Procedimiento de Actualización a la Entidad SO_RelUnidadProductoFinDetTbl
 -- Fecha:         01-may-2026
 -- Version:       1
 --

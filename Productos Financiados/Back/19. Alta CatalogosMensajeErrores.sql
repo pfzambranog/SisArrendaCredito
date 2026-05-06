@@ -2,7 +2,7 @@ Use SisArrendaCredito
 Go
 
 --
--- Script:      alta Mensajes Errores
+-- Script:     Alta Mensajes Errores
 -- Fecha:       30-Abr-2026
 -- Versión:     1
 -- Programador: Pedro Zambrano

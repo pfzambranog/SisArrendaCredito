@@ -75,7 +75,7 @@ Begin
    Select @w_idEstatus       = idEstatus,
           @w_borradoLogico   = @w_borradoLogico,
           @w_noamort         = noamort,
-          @w_total           = totalFinaciamiento
+          @w_total           = totalFinanciamiento
    From   dbo.SO_RelUnidadProductoFinTbl With (Nolock)
    Where  idRelacion = @w_idRelacion
    If @@Rowcount = 0

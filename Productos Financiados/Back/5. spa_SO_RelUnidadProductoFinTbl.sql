@@ -5,9 +5,9 @@ Go
 
 Declare
    @PnId_Unidad             Integer         = 106990,
-   @PnTotalFinaciamiento    Decimal(18, 2)  = 1200,
+   @PnTotalFinanciamiento   Decimal(18, 2)  = 1200,
    @PnNoamort               Integer         = 12,
-   @PnTasaFinaciamiento     Decimal(18, 4)  = 10,
+   @PnTasaFinanciamiento    Decimal(18, 4)  = 10,
    @PnIdEstatus             Integer         = 1,
    @PsUsuarioAutoriza       Varchar( 10)    = Null,
    @PdFechaAutoriza         Datetime        = Null,
@@ -18,18 +18,18 @@ Declare
    @PsMensaje               Varchar( 250)   = Null;
 
 Begin
-   Execute dbo.spa_SO_RelUnidadProductoFinTbl @PnId_Unidad          = @PnId_Unidad,
-                                              @PnTotalFinaciamiento = @PnTotalFinaciamiento,
-                                              @PnNoamort            = @PnNoamort,
-                                              @PnTasaFinaciamiento  = @PnTasaFinaciamiento,
-                                              @PnIdEstatus          = @PnIdEstatus,
-                                              @PsUsuarioAutoriza    = @PsUsuarioAutoriza,
-                                              @PdFechaAutoriza      = @PdFechaAutoriza,
-                                              @PdUltActual          = @PdUltActual,
-                                              @PsUsuario            = @PsUsuario,
-                                              @PsIpAct              = @PsIpAct,
-                                              @PnEstatus            = @PnEstatus Output,
-                                              @PsMensaje            = @PsMensaje Output;
+   Execute dbo.spa_SO_RelUnidadProductoFinTbl @PnId_Unidad           = @PnId_Unidad,
+                                              @PnTotalFinanciamiento = @PnTotalFinanciamiento,
+                                              @PnNoamort             = @PnNoamort,
+                                              @PnTasaFinanciamiento  = @PnTasaFinanciamiento,
+                                              @PnIdEstatus           = @PnIdEstatus,
+                                              @PsUsuarioAutoriza     = @PsUsuarioAutoriza,
+                                              @PdFechaAutoriza       = @PdFechaAutoriza,
+                                              @PdUltActual           = @PdUltActual,
+                                              @PsUsuario             = @PsUsuario,
+                                              @PsIpAct               = @PsIpAct,
+                                              @PnEstatus             = @PnEstatus Output,
+                                              @PsMensaje             = @PsMensaje Output;
 
    Select @PnEstatus error, @PsMensaje Mensaje;
    Return;
@@ -50,9 +50,9 @@ Go
 
 Create Or ALter Procedure dbo.spa_SO_RelUnidadProductoFinTbl
   (@PnId_Unidad             Integer,
-   @PnTotalFinaciamiento    Decimal(18, 2),
+   @PnTotalFinanciamiento   Decimal(18, 2),
    @PnNoamort               Integer,
-   @PnTasaFinaciamiento     Decimal(18, 4),
+   @PnTasaFinanciamiento    Decimal(18, 4),
    @PnIdEstatus             Integer         = 1,
    @PsUsuarioAutoriza       Varchar( 10)    = Null,
    @PdFechaAutoriza         Datetime        = Null,
@@ -167,10 +167,10 @@ Begin
 
    Begin Try
       Insert Into dbo.SO_RelUnidadProductoFinTbl
-     (Id_Unidad, totalFinaciamiento, noamort,       tasaFinaciamiento,
+     (Id_Unidad, totalFinanciamiento, noamort,       tasaFinanciamiento,
       idEstatus, usuarioAutoriza,    fechaAutoriza, usuario,
       UltActual, ipAct)
-      Select @PnId_Unidad, @PnTotalFinaciamiento, @PnNoamort,       @PnTasaFinaciamiento,
+      Select @PnId_Unidad, @PnTotalFinanciamiento, @PnNoamort,       @PnTasaFinanciamiento,
              @PnIdEstatus, @PsUsuarioAutoriza,    @PdFechaAutoriza, @PsUsuario,
              @w_fecha,     @PsIpAct;
       Set @PsMensaje = @@Identity;

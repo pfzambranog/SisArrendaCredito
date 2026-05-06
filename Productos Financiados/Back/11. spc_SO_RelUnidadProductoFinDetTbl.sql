@@ -27,7 +27,7 @@ Go
 
 --
 -- Procedimiento: spc_SO_RelUnidadProductoFinDetTbl
--- Objetivo:      Procedimiento de Consulta a la Entidad spc_SO_RelUnidadProductoFinDetTbl
+-- Objetivo:      Procedimiento de Consulta a la Entidad SO_RelUnidadProductoFinDetTbl
 -- Fecha:         01-may-2026
 -- Version:       1
 --

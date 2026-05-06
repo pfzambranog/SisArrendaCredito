@@ -6,9 +6,9 @@ Go
 Declare
    @PnIdRelacion            Integer         = 1,
    @PnId_Unidad             Integer         = 106990,
-   @PnTotalFinaciamiento    Decimal(18, 2)  = 1200,
+   @PnTotalFinanciamiento   Decimal(18, 2)  = 1200,
    @PnNoamort               Integer         = 12,
-   @PnTasaFinaciamiento     Decimal(18, 4)  = 10,
+   @PnTasaFinanciamiento    Decimal(18, 4)  = 10,
    @PnIdEstatus             Integer         = 1,
    @PsUsuarioAutoriza       Varchar( 10)    = Null,
    @PdFechaAutoriza         Datetime        = Null,
@@ -19,19 +19,19 @@ Declare
    @PsMensaje               Varchar( 250)   = Null;
 
 Begin
-   Execute dbo.spu_SO_RelUnidadProductoFinTbl @PnIdRelacion         = @PnIdRelacion,
-                                              @PnId_Unidad          = @PnId_Unidad,
-                                              @PnTotalFinaciamiento = @PnTotalFinaciamiento,
-                                              @PnNoamort            = @PnNoamort,
-                                              @PnTasaFinaciamiento  = @PnTasaFinaciamiento,
-                                              @PnIdEstatus          = @PnIdEstatus,
-                                              @PsUsuarioAutoriza    = @PsUsuarioAutoriza,
-                                              @PdFechaAutoriza      = @PdFechaAutoriza,
-                                              @PdUltActual          = @PdUltActual,
-                                              @PsUsuario            = @PsUsuario,
-                                              @PsIpAct              = @PsIpAct,
-                                              @PnEstatus            = @PnEstatus Output,
-                                              @PsMensaje            = @PsMensaje Output;
+   Execute dbo.spu_SO_RelUnidadProductoFinTbl @PnIdRelacion          = @PnIdRelacion,
+                                              @PnId_Unidad           = @PnId_Unidad,
+                                              @PnTotalFinanciamiento = @PnTotalFinanciamiento,
+                                              @PnNoamort             = @PnNoamort,
+                                              @PnTasaFinanciamiento  = @PnTasaFinanciamiento,
+                                              @PnIdEstatus           = @PnIdEstatus,
+                                              @PsUsuarioAutoriza     = @PsUsuarioAutoriza,
+                                              @PdFechaAutoriza       = @PdFechaAutoriza,
+                                              @PdUltActual           = @PdUltActual,
+                                              @PsUsuario             = @PsUsuario,
+                                              @PsIpAct               = @PsIpAct,
+                                              @PnEstatus             = @PnEstatus Output,
+                                              @PsMensaje             = @PsMensaje Output;
 
    Select @PnEstatus error, @PsMensaje Mensaje;
    Return;
@@ -53,9 +53,9 @@ Go
 Create Or ALter Procedure dbo.spu_SO_RelUnidadProductoFinTbl
   (@PnIdRelacion            Integer,
    @PnId_Unidad             Integer         = Null,
-   @PnTotalFinaciamiento    Decimal(18, 2)  = Null,
+   @PnTotalFinanciamiento   Decimal(18, 2)  = Null,
    @PnNoamort               Integer         = Null,
-   @PnTasaFinaciamiento     Decimal(18, 4)  = Null,
+   @PnTasaFinanciamiento    Decimal(18, 4)  = Null,
    @PnIdEstatus             Integer         = Null,
    @PsUsuarioAutoriza       Varchar( 10)    = Null,
    @PdFechaAutoriza         Datetime        = Null,
@@ -210,9 +210,9 @@ Begin
          Set @w_sql = Concat(@w_sql, ', Id_unidad = ', @PnId_Unidad);
       End
 
-   If @PnTotalFinaciamiento Is Not Null
+   If @PnTotalFinanciamiento Is Not Null
       Begin
-         Set @w_sql = Concat(@w_sql, ', totalFinaciamiento = ', @PnTotalFinaciamiento);
+         Set @w_sql = Concat(@w_sql, ', totalFinanciamiento = ', @PnTotalFinanciamiento);
       End
 
    If @PnNoamort Is Not Null
@@ -220,9 +220,9 @@ Begin
          Set @w_sql = Concat(@w_sql, ', noamort = ', @PnNoamort);
       End
 
-   If @PnTasaFinaciamiento Is Not Null
+   If @PnTasaFinanciamiento Is Not Null
       Begin
-         Set @w_sql = Concat(@w_sql, ', tasaFinaciamiento = ', @PnTasaFinaciamiento);
+         Set @w_sql = Concat(@w_sql, ', tasaFinanciamiento = ', @PnTasaFinanciamiento);
       End
 
    If @PnIdEstatus Is Not Null

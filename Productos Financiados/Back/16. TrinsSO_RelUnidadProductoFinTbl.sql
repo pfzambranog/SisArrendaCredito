@@ -15,10 +15,10 @@ As
 Declare
    @w_idRelacion            Integer,
    @w_Id_Unidad             Integer,
-   @w_totalFinaciamiento    Decimal(18, 2),
+   @w_totalFinanciamiento   Decimal(18, 2),
    @w_noamort               Integer,
    @w_plazo                 Integer,
-   @w_tasaFinaciamiento     Decimal(18, 4),
+   @w_tasaFinanciamiento    Decimal(18, 4),
    @w_idEstatus             Integer,
    @w_usuarioAutoriza       Varchar(10),
    @w_fechaAutoriza         Datetime,
@@ -33,10 +33,10 @@ Begin
 
    Select @w_idRelacion          = idRelacion,
           @w_Id_Unidad           = Id_Unidad,
-          @w_totalFinaciamiento  = totalFinaciamiento,
+          @w_totalFinanciamiento = totalFinanciamiento,
           @w_noamort             = noamort,
           @w_plazo               = 0,
-          @w_tasaFinaciamiento   = tasaFinaciamiento,
+          @w_tasaFinanciamiento  = tasaFinanciamiento,
           @w_idEstatus           = idEstatus,
           @w_usuarioAutoriza     = usuarioAutoriza,
           @w_fechaAutoriza       = fechaAutoriza,
@@ -51,7 +51,7 @@ Begin
         If @w_estatus Between 9998 And 9999
            Begin
               Set @w_mensaje = dbo.Fn_Busca_MensajeError(@w_operacion, @w_estatus)
-              Raiserror (@w_mensaje, 16, 1) 
+              Raiserror (@w_mensaje, 16, 1)
               Rollback Transaction
               Return
            End;
@@ -74,18 +74,18 @@ Begin
                   End
 
                Set @w_mensaje = dbo.Fn_Busca_MensajeError(@w_operacion, @w_estatus)
-               Raiserror (@w_mensaje, 16, 1) 
+               Raiserror (@w_mensaje, 16, 1)
                Rollback Transaction
                Return
            End;
 
-      
+
          If @w_FechaAutoriza Is Null
             Begin
                Select @w_estatus = 9063,
                       @w_mensaje = dbo.Fn_Busca_MensajeError(@w_operacion, @w_estatus);
 
-               Raiserror (@w_mensaje, 16, 1) 
+               Raiserror (@w_mensaje, 16, 1)
                Rollback Transaction
                Return
             End;
@@ -107,7 +107,7 @@ Begin
                Select @w_estatus = 8033,
                       @w_mensaje = dbo.Fn_Busca_MensajeError(@w_operacion, @w_estatus);
 
-               Raiserror (@w_mensaje, 16, 1) 
+               Raiserror (@w_mensaje, 16, 1)
                Rollback Transaction
                Return
 
@@ -137,7 +137,7 @@ Begin
                Select @w_estatus = 6014,
                       @w_mensaje = dbo.Fn_Busca_MensajeError(@w_operacion, @w_estatus);
 
-               Raiserror (@w_mensaje, 16, 1) 
+               Raiserror (@w_mensaje, 16, 1)
                Rollback Transaction
                Return
             End
@@ -147,7 +147,7 @@ Begin
                Select @w_estatus = 10014,
                       @w_mensaje = dbo.Fn_Busca_MensajeError(@w_operacion, @w_estatus);
 
-               Raiserror (@w_mensaje, 16, 1) 
+               Raiserror (@w_mensaje, 16, 1)
                Rollback Transaction
                Return
 
@@ -160,11 +160,11 @@ Begin
          Select @w_estatus = 9067,
                 @w_mensaje = dbo.Fn_Busca_MensajeError(@w_operacion, @w_estatus);
 
-         Raiserror (@w_mensaje, 16, 1) 
+         Raiserror (@w_mensaje, 16, 1)
          Rollback Transaction
          Return
-      End      
-              
+      End
+
    Return
 End
 Go

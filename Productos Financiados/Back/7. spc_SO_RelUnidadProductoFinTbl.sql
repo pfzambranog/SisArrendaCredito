@@ -111,8 +111,8 @@ Begin
 
       End
 
-   Set @w_sql = Concat('Select a.idRelacion,        a.Id_Unidad, a.totalFinaciamiento, a.noamort,   ',
-                              'a.tasaFinaciamiento, a.idEstatus, b.descripcion Estatus,    ',
+   Set @w_sql = Concat('Select a.idRelacion,        a.Id_Unidad, a.totalFinanciamiento, a.noamort,   ',
+                              'a.tasaFinanciamiento, a.idEstatus, b.descripcion Estatus,    ',
                               'Convert(Char(10), a.fechaAlta, 103) fechaAlta, ',
                               'a.usuarioAutoriza,   dbo.Fn_BuscaNombreUsuarioSIAN(dbo.Fn_BuscaIdUsuario(a.usuarioAutoriza)) autorizo, ',
                               'Convert(Char(10),    a.fechaAutoriza, 103) fechaAutorizacion, ',

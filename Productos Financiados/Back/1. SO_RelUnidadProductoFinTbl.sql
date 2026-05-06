@@ -3,7 +3,7 @@ Go
 
 --
 -- Tabla:   SO_RelUnidadProductoFinTbl
---          Tabla de Control de la Relación de la Unidad con los productos a financiar
+--          Tabla de Maestra de la Relación de la Unidad con los productos a financiar
 -- Modulo:  Originación
 -- Fecha:   30-Abr-2026
 -- Version: 1
@@ -22,9 +22,9 @@ Go
 Create Table dbo.SO_RelUnidadProductoFinTbl
   (idRelacion            Integer        Not Null Identity (1, 1),
    Id_Unidad             Integer        Not Null,
-   totalFinaciamiento    Decimal(18, 2) Not Null,
+   totalFinanciamiento   Decimal(18, 2) Not Null,
    noamort               Integer        Not Null,
-   tasaFinaciamiento     Decimal(18, 4) Not Null,
+   tasaFinanciamiento    Decimal(18, 4) Not Null,
    idEstatus             Integer        Not Null Default 1,
    borradoLogico         Bit            Not Null Default 0,
    fechaAlta             Datetime       Not Null Default Getdate(),
@@ -47,7 +47,7 @@ Go
 --
 
 Execute sp_addextendedproperty    @name       = 'MS_Description',
-                                  @value      = 'Tabla de Control de la Relación de la Unidad con los productos a financiar.',
+                                  @value      = 'Tabla Maestra de la Relación de la Unidad con los productos a financiar.',
                                   @level0type = 'Schema',
                                   @level0name = 'dbo',
                                   @level1type = 'Table',
@@ -81,7 +81,7 @@ Execute sp_addextendedproperty    @name       = 'MS_Description',
                                   @level1type = 'Table',
                                   @level1name = 'SO_RelUnidadProductoFinTbl',
                                   @level2type = 'Column',
-                                  @level2name = 'totalFinaciamiento'
+                                  @level2name = 'totalFinanciamiento'
 Go
 
 Execute sp_addextendedproperty    @name       = 'MS_Description',
@@ -95,13 +95,13 @@ Execute sp_addextendedproperty    @name       = 'MS_Description',
 Go
 
 Execute sp_addextendedproperty    @name       = 'MS_Description',
-                                  @value      = 'Tasa del Finaciamiento a ser Aplicados al Financiamiento.',
+                                  @value      = 'Tasa del Financiamiento a ser Aplicados al Financiamiento.',
                                   @level0type = 'Schema',
                                   @level0name = 'dbo',
                                   @level1type = 'Table',
                                   @level1name = 'SO_RelUnidadProductoFinTbl',
                                   @level2type = 'Column',
-                                  @level2name = 'tasaFinaciamiento'
+                                  @level2name = 'tasaFinanciamiento'
 Go
 
 Execute sp_addextendedproperty    @name       = 'MS_Description',
